@@ -1,41 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mp5/models/task.dart';
-
+import 'package:integration_test/integration_test.dart';
+import 'package:mp5/main.dart' as app;
 import 'package:mp5/views/add_tasks_page.dart';
+import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
-  testWidgets('AddTaskPage adds a new task', (WidgetTester tester) async {
-    // Variable to store the added task
-    late Task addedTask;
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(
-      MaterialApp(
-        home: AddTaskPage(
-          onTaskAdded: (task) {
-            addedTask = task;
-          },
-        ),
-      ),
-    );
+  testWidgets('Test AddTaskPage', (WidgetTester tester) async {
+    // Mock SharedPreferences
+    final mockSharedPreferences = MockSharedPreferences();
+    when(mockSharedPreferences.getString('tasks')).thenReturn('[]');
+    when(mockSharedPreferences.getString('completedTasks')).thenReturn('[]');
+    SharedPreferences.setMockInitialValues({});
 
-    // Verify that the AddTaskPage is displayed.
+    // Provide the mockSharedPreferences to the SharedPreferences.getInstance method
+    SharedPreferences.setMockInitialValues({
+      'tasks': '[{"id":"1","title":"Task 1","isCompleted":false,"details":""}]',
+      'completedTasks': '[]',
+    });
+
+    // Run the app
+    app.main();
+
+    // Wait for the app to render
+    await tester.pumpAndSettle();
+
+    // Find and tap on the FloatingActionButton to navigate to AddTaskPage
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    // Verify that AddTaskPage is displayed
     expect(find.text('Add Task'), findsOneWidget);
 
-    // Enter a task name in the TextField.
-    await tester.enterText(find.byType(TextField), 'New Task');
+    // Enter task name in the TextField
+    await tester.enterText(find.byType(TextField), 'Test Task');
 
-    // Submit the form.
+    // Submit the form
     await tester.testTextInput.receiveAction(TextInputAction.done);
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Verify that the onTaskAdded callback was called with the correct task.
-    expect(addedTask.title, 'New Task');
-    expect(addedTask.details, '');
-    expect(addedTask.isCompleted, false);
-    expect(addedTask.id, isNotNull);
+    // Verify that the task is added
+    expect(find.text('Test Task'), findsOneWidget);
 
-    // You can add more assertions based on your app's behavior.
-  });
+   
+  }, tags: ['AddTaskPage']);
 }

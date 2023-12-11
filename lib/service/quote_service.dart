@@ -1,22 +1,26 @@
 import 'dart:convert';
-
 import 'package:mp5/models/quote.dart';
 import 'package:http/http.dart' as http;
 
-
 class QuoteService {
+  final http.Client httpClient;
+
+  QuoteService({http.Client? httpClient}) : httpClient = httpClient ?? http.Client();
+
   Future<Map<String, dynamic>> fetchQuote() async {
     try {
-      final response = await http.get(Uri.parse('https://api.quotable.io/random'));
+      final response = await httpClient.get(Uri.parse('https://api.quotable.io/random'));
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.body.isEmpty) {
-        throw Exception('Empty response body');
+      if (response.statusCode == 200) {
+        final responseBody = response.body;
+        if (responseBody.isNotEmpty) {
+          return json.decode(responseBody);
+        } else {
+          throw Exception('Empty response body');
+        }
+      } else {
+        throw Exception('Failed to fetch quote. Status code: ${response.statusCode}');
       }
-
-      return json.decode(response.body);
     } catch (e) {
       print('Error fetching quote: $e');
       throw e;
@@ -35,7 +39,7 @@ class QuoteService {
           throw Exception('Invalid data type for content');
         }
       } else {
-        throw Exception('Failed to parse quote data');
+        throw Exception('Failed to parse quote data. Missing required fields.');
       }
     } catch (e) {
       print('Error loading quote: $e');

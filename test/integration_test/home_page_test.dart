@@ -1,22 +1,37 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mp5/main.dart'; // Replace with the actual path to your main.dart file
-import 'package:mp5/views/add_tasks_page.dart';
+import 'package:integration_test/integration_test.dart';
+import 'package:mp5/main.dart' as app;
+import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
 
 void main() {
-  testWidgets('Navigate to Add Task Page', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('Today\'s Tasks'), findsOneWidget);
+  testWidgets('Test HomePage', (WidgetTester tester) async {
+    // Mock SharedPreferences
+    final mockSharedPreferences = MockSharedPreferences();
+    when(mockSharedPreferences.getString('tasks')).thenReturn('[]');
+    when(mockSharedPreferences.getString('completedTasks')).thenReturn('[]');
+    SharedPreferences.setMockInitialValues({});
 
-    // Tap the add button to navigate to Add Task Page
-    await tester.tap(find.byKey(Key('fab')));
+    // Provide the mockSharedPreferences to the SharedPreferences.getInstance method
+    SharedPreferences.setMockInitialValues({
+      'tasks': '[{"id":"1","title":"Task 1","isCompleted":false,"details":""}]',
+      'completedTasks': '[]',
+    });
+
+    // Run the app
+    app.main();
+
+    // Wait for the app to render
     await tester.pumpAndSettle();
 
-    // Verify that we are on the Add Task Page
-    expect(find.text('Enter Task Name:'), findsOneWidget);
-    expect(find.byType(TextField), findsOneWidget);
+    // Verify that the initial state of your app is correct
+    expect(find.text('To-Do List App'), findsOneWidget);
+    expect(find.text('Task 1'), findsOneWidget);
+
+    // You can add more assertions based on your app's behavior.
   });
 }

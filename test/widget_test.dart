@@ -1,26 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:mp5/service/quote_service.dart';
+import 'package:mp5/service/quote_service.dart';
+import 'package:mp5/views/home_page.dart';
 
-import 'package:mp5/main.dart';
+
+class MockQuoteService extends Mock  {
+  @override
+  Future<Map<String, dynamic>> fetchQuote() async {
+    return {'author': 'Mock Author', 'content': 'Mock Quote Content'};
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Create a mock instance of QuoteService
+    final mockQuoteService = MockQuoteService();
 
-    expect(find.text('1'), findsNothing);
-
-    // Tap the add icon (adapt based on your current widget structure)
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
-
-    // You can add more assertions based on your app's behavior.
-  });
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'To-Do List App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+    //  home: HomePage(quoteService: mockQuoteService),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: child!,
+        );
+      },
+    );
+  }
 }

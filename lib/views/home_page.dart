@@ -1,22 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
-import 'package:http/http.dart';
-import 'package:http/http.dart';
-import 'package:http/http.dart';
 import 'package:mp5/models/task.dart';
 import 'package:mp5/views/add_tasks_page.dart';
 import 'package:mp5/views/completed_tasks_page.dart';
-import 'package:mp5/service/quote_service.dart';
 import 'package:mp5/models/quote.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
-import 'package:mp5/models/quote.dart';
-import 'package:http/http.dart' as http;
-import 'package:dio/dio.dart' as Dio;
-
 
 class QuoteService {
   Future<Map<String, dynamic>> fetchQuote() async {
@@ -55,15 +44,23 @@ class QuoteService {
 }
 
 class HomePage extends StatefulWidget {
+  final QuoteService quoteService; // Declare the parameter
+
+  // Constructor that takes a quoteService parameter
+  const HomePage({Key? key, required this.quoteService}) : super(key: key);
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
+
+
 class _HomePageState extends State<HomePage> {
   List<Task> tasks = [];
   List<Task> completedTasks = [];
-  final QuoteService _quoteService = QuoteService();
-  Quote _quote = Quote(
+  late QuoteService _quoteService; // Declare the variable
+
+Quote _quote = Quote(
     id: '',
     tags: '',
     content: '',
@@ -73,12 +70,12 @@ class _HomePageState extends State<HomePage> {
     dateAdded: '',
     dateModified: '',
   );
-
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    _quoteService = widget.quoteService; // Initialize in initState
     _loadQuote();
+    _loadTasks();
   }
 
   void _loadTasks() async {
@@ -103,48 +100,46 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _loadQuote() async {
-  try {
-    print('Fetching quote...');
-    final Map<String, dynamic> responseData = await _quoteService.fetchQuote();
+    try {
+      print('Fetching quote...');
+      final Map<String, dynamic> responseData = await _quoteService.fetchQuote();
 
-    // You can check for the required fields in responseData and handle errors accordingly
-    if (responseData.containsKey('author')) {
-      String content = '';
+      // Check for the required fields in responseData and handle errors accordingly
+      if (responseData.containsKey('author')) {
+        String content = '';
 
-      final contentData = responseData['content'];
-      if (contentData is String) {
-        content = contentData;
-      } else if (contentData is List<dynamic> && contentData.isNotEmpty) {
-        // Use the first element if 'content' is a non-empty list
-        content = contentData[0].toString();
+        final contentData = responseData['content'];
+        if (contentData is String) {
+          content = contentData;
+        } else if (contentData is List<dynamic> && contentData.isNotEmpty) {
+          // Use the first element if 'content' is a non-empty list
+          content = contentData[0].toString();
+        }
+
+        final Quote quote = Quote(
+          id: '',
+          tags: '',
+          content: content,
+          author: responseData['author'],
+          authorSlug: '',
+          length: null,
+          dateAdded: '',
+          dateModified: '',
+        );
+
+        setState(() {
+          _quote = quote;
+        });
+      } else {
+        print('Failed to load quote. Response data does not contain required fields.');
+        // You can provide a default quote or display an error message
       }
-
-      final Quote quote = Quote(
-        id: '',
-        tags: '',
-        content: content,
-        author: responseData['author'],
-        authorSlug: '',
-        length: null,
-        dateAdded: '',
-        dateModified: '',
-      );
-
-      setState(() {
-        _quote = quote;
-      });
-    } else {
-      print('Failed to load quote. Response data does not contain required fields.');
+    } catch (e) {
+      print('Error loading quote: $e');
+      // Handle the error, e.g., show a message to the user
       // You can provide a default quote or display an error message
     }
-  } catch (e) {
-    print('Error loading quote: $e');
-    // Handle the error, e.g., show a message to the user
-    // You can provide a default quote or display an error message
   }
-}
-
-
 
   void _saveTasks() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

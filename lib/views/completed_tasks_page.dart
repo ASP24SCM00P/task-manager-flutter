@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mp5/models/task.dart';
-import 'package:mp5/views/home_page.dart';
 
 class CompletedTasksPage extends StatefulWidget {
   final List<Task> completedTasks;
@@ -20,25 +19,29 @@ class _CompletedTasksPageState extends State<CompletedTasksPage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Completed Tasks',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 16),
-            _buildCompletedTasksList(),
-          ],
-        ),
+        child: _buildCompletedTasksList(),
       ),
     );
   }
 
   Widget _buildCompletedTasksList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Finished Tasks',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 16),
+        _buildCompletedTasksItems(),
+      ],
+    );
+  }
+
+  Widget _buildCompletedTasksItems() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: widget.completedTasks
