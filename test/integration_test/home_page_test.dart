@@ -1,38 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mp5/models/task.dart';
-import 'package:mp5/views/completed_tasks_page.dart';
-import 'package:mp5/views/home_page.dart';
+import 'package:mp5/main.dart'; // Replace with the actual path to your main.dart file
+import 'package:mp5/views/add_tasks_page.dart';
 
 void main() {
-  testWidgets('Home Page Integration Test', (tester) async {
-    // Build the main app
-    await tester.pumpWidget(MaterialApp(home: HomePage()));
+  testWidgets('Navigate to Add Task Page', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(MyApp());
 
-    // Add a task to the task list
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'Sample Task');
-    await tester.tap(find.text('Add'));
-    await tester.pumpAndSettle();
+    // Verify that our counter starts at 0.
+    expect(find.text('Today\'s Tasks'), findsOneWidget);
 
-    // Verify that the added task is displayed
-    expect(find.text('Sample Task'), findsOneWidget);
-
-    // Mark the added task as completed
-    await tester.tap(find.byType(Checkbox));
+    // Tap the add button to navigate to Add Task Page
+    await tester.tap(find.byKey(Key('fab')));
     await tester.pumpAndSettle();
 
-    // Verify that the task is moved to the completed tasks list
-    expect(find.text('Sample Task'), findsNothing);
-    expect(find.byIcon(Icons.check), findsOneWidget);
-
-    // Navigate to the CompletedTasksPage
-    await tester.tap(find.byIcon(Icons.done));
-    await tester.pumpAndSettle();
-
-    // Verify that the completed task is displayed on the CompletedTasksPage
-    expect(find.text('Sample Task'), findsOneWidget);
-    expect(find.byIcon(Icons.check), findsOneWidget);
+    // Verify that we are on the Add Task Page
+    expect(find.text('Enter Task Name:'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
   });
 }

@@ -197,6 +197,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        key: Key('fab'),
         onPressed: () {
           // Navigate to the Add Task Page
           Navigator.push(
