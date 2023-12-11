@@ -32,6 +32,5 @@ void main() {
     expect(find.text('To-Do List App'), findsOneWidget);
     expect(find.text('Task 1'), findsOneWidget);
 
-    // You can add more assertions based on your app's behavior.
   });
 }

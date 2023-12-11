@@ -7,7 +7,7 @@ import 'package:mp5/views/completed_tasks_page.dart';
 import 'package:mp5/shared_preferences_helper.dart';
 
 void main() async {
-  // Ensure that the widgets binding is initialized
+ 
  // WidgetsFlutterBinding.ensureInitialized();
 
   // Set up the shared_preferences mock
@@ -31,7 +31,7 @@ void main() async {
       ),
     );
 
-    // You can add your test expectations here
+ 
     expect(find.text('Finished Tasks'), findsOneWidget);
     expect(find.text('Task 1'), findsOneWidget);
     expect(find.text('Task 2'), findsOneWidget);
