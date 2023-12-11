@@ -8,6 +8,14 @@ class QuoteService {
   Future<Map<String, dynamic>> fetchQuote() async {
     try {
       final response = await http.get(Uri.parse('https://api.quotable.io/random'));
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.body.isEmpty) {
+        throw Exception('Empty response body');
+      }
+
       return json.decode(response.body);
     } catch (e) {
       print('Error fetching quote: $e');
@@ -20,7 +28,12 @@ class QuoteService {
       final Map<String, dynamic> responseData = await fetchQuote();
 
       if (responseData.containsKey('content') && responseData.containsKey('author')) {
-        return Quote.fromJson(responseData);
+        // Check if 'content' is a String
+        if (responseData['content'] is String) {
+          return Quote.fromJson(responseData);
+        } else {
+          throw Exception('Invalid data type for content');
+        }
       } else {
         throw Exception('Failed to parse quote data');
       }

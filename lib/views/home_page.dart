@@ -108,8 +108,28 @@ class _HomePageState extends State<HomePage> {
     final Map<String, dynamic> responseData = await _quoteService.fetchQuote();
 
     // You can check for the required fields in responseData and handle errors accordingly
-    if (responseData.containsKey('content') && responseData.containsKey('author')) {
-      final Quote quote = Quote.fromJson(responseData);
+    if (responseData.containsKey('author')) {
+      String content = '';
+
+      final contentData = responseData['content'];
+      if (contentData is String) {
+        content = contentData;
+      } else if (contentData is List<dynamic> && contentData.isNotEmpty) {
+        // Use the first element if 'content' is a non-empty list
+        content = contentData[0].toString();
+      }
+
+      final Quote quote = Quote(
+        id: '',
+        tags: '',
+        content: content,
+        author: responseData['author'],
+        authorSlug: '',
+        length: null,
+        dateAdded: '',
+        dateModified: '',
+      );
+
       setState(() {
         _quote = quote;
       });
